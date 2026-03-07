@@ -34,7 +34,7 @@ export default function HospitalHackathonDemo() {
         <h4>Hello, {patients[0].name}</h4>
         <p>Estimated Wait: <strong>{patients[0].waitTime} mins</strong></p>
         
-        <div style={{ marginTop: '20px', padding: '10px', background: '#f0f0f0' }}>
+        <div style={{ marginTop: '20px', padding: '10px', background: '#383838' }}>
           <h5>Hospital Live Status</h5>
           {machines.map(m => (
             <p key={m.id} style={{ fontSize: '14px', margin: '5px 0' }}>
