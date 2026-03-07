@@ -69,7 +69,7 @@ export default function HospitalHackathonDemo() {
           </thead>
           <tbody>
             {patients.map(p => (
-              <tr key={p.id} style={{ backgroundColor: p.needsHelp ? '#ffe6e6' : 'transparent' }}>
+              <tr key={p.id} style={{ backgroundColor: p.needsHelp ? '#884949' : 'transparent' }}>
                 <td style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>{p.name}</td>
                 <td style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Level {p.triage}</td>
                 <td style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Waiting</td>
