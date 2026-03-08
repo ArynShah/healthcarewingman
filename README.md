@@ -30,6 +30,6 @@ MediClear operates across two synchronized web views. To test the full flow, you
 2. Log in using the default admin password: `mediclear123`.
 3. Go to the "Add Patient" tab. Enter a test name, select a few symptoms, and click a few routing steps (such as Blood Work and an X-Ray). 
 4. Click the generate button at the bottom of the screen to receive a 6-character patient access code.
-5. Open a new browser tab or use your phone and go to the main Patient Portal at the root Vercel URL (https://mediclearhc.vercel.app).
+5. Open a new browser tab or use your phone and go to the main Patient Portal at the root Vercel URL (https://mediclearhc.vercel.app/).
 6. Enter the 6-character code you just generated.
 7. You will now see the live patient dashboard. To see the real-time synchronization, go back to the Nurse Command Center's "Active Directory" tab, advance the patient's stage, or change machine statuses in the "Facility Routing" tab, and watch the changes reflect immediately on the Patient Portal.
