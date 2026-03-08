@@ -157,13 +157,14 @@ export default function PatientPortal() {
         const dbPatient = await patientRes.json();
         const dbMachines = await machinesRes.json();
         
-        // Ensure index is at least 1 so Triage is always completed
         const currentIndex = Math.max(1, dbPatient.currentStepIndex || 1);
+        const isJourneyComplete = currentIndex >= dbPatient.nextSteps.length;
 
         const formattedData = {
           name: dbPatient.name,
           hospitalCode: dbPatient.code,
           symptoms: dbPatient.symptoms,
+          isJourneyComplete: isJourneyComplete,
           estimatedWait: Math.floor(Math.random() * 30) + 15,
           queuePosition: Math.floor(Math.random() * 5) + 1,
           journey: dbPatient.nextSteps.map((stepName, index) => {
@@ -176,12 +177,13 @@ export default function PatientPortal() {
               why: "Determined necessary by your care team."
             };
 
-            // Map step to database machine if applicable
             let mappedMachine = null;
-            if (stepName === "X-Ray") mappedMachine = dbMachines.find(m => m.id === "xray_1");
-            if (stepName === "MRI Scan") mappedMachine = dbMachines.find(m => m.id === "mri_1");
-            if (stepName === "CT Scan") mappedMachine = dbMachines.find(m => m.id === "ct_1");
-            if (stepName === "Blood Work") mappedMachine = dbMachines.find(m => m.id === "blood_1");
+            const stepLower = stepName.toLowerCase();
+            
+            if (stepLower.includes("x-ray")) mappedMachine = dbMachines.find(m => m.id === "xray_1" || m.name.includes("X-Ray"));
+            if (stepLower.includes("mri")) mappedMachine = dbMachines.find(m => m.id === "mri_1" || m.name.includes("MRI"));
+            if (stepLower.includes("ct")) mappedMachine = dbMachines.find(m => m.id === "ct_1" || m.name.includes("CT"));
+            if (stepLower.includes("blood")) mappedMachine = dbMachines.find(m => m.id === "blood_1" || m.name.includes("Blood"));
 
             return {
               id: String(index + 1),
@@ -290,106 +292,152 @@ export default function PatientPortal() {
             </div>
 
             {activeTab === 'journey' && (
-              <div className="p-6">
-                
-                <div className="mb-8">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white border border-gray-200 rounded-2xl p-4 text-center shadow-sm">
-                      <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">Queue Position</p>
-                      <p className="text-4xl font-black text-[#047857]">{patientData.queuePosition}</p>
-                    </div>
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center relative overflow-hidden shadow-sm">
-                      <div className="absolute top-0 right-0 w-2 h-2 bg-[#10b981] rounded-full m-3 animate-pulse"></div>
-                      <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Wait For Next Step</p>
-                      <p className="text-4xl font-black text-[#022c22]">{patientData.estimatedWait}<span className="text-sm text-[#047857]">m</span></p>
-                    </div>
+              patientData.isJourneyComplete ? (
+                <div className="p-8 flex flex-col items-center justify-center text-center space-y-6 mt-4">
+                  <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-2 shadow-sm border border-emerald-200">
+                    <svg className="w-12 h-12 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                   </div>
-
-                  <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
-                    <span className="text-yellow-600 font-bold">!</span>
-                    <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
-                      <strong>Disclaimer:</strong> This is a live estimate for your <strong>next step only</strong>, not your total visit. Emergencies may cause sudden shifts.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mb-6 flex justify-between items-end">
+                  
                   <div>
-                    <h2 className="text-lg font-extrabold text-gray-900">Your Treatment Plan</h2>
-                    <p className="text-xs text-gray-500 font-medium mt-1">Tap any step to see exactly what to expect.</p>
+                    <h2 className="text-3xl font-black text-gray-900 mb-2">Care Complete!</h2>
+                    <p className="text-sm text-gray-500 font-medium leading-relaxed px-4">You have completed all the steps in your treatment plan. Thank you for your patience.</p>
                   </div>
-                  <span className="bg-emerald-100 text-[#047857] border border-emerald-200 px-2 py-1 rounded text-[10px] font-extrabold tracking-widest uppercase">
-                    ID: {patientData.hospitalCode}
-                  </span>
+
+                  <div className="w-full bg-white border border-gray-200 p-6 rounded-3xl shadow-sm text-left relative overflow-hidden mt-4">
+                    <span className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest bg-emerald-100 px-3 py-1.5 rounded-full border border-emerald-200 mb-4 inline-block">
+                      Powered by Vivirion
+                    </span>
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="bg-[#10b981] text-white text-[10px] font-black px-3 py-1.5 rounded-full">
+                        {recommendedModule.length}
+                      </span>
+                      <span className="text-xs font-bold text-[#047857]">{recommendedModule.level}</span>
+                    </div>
+                    <h3 className="text-xl font-black text-[#022c22] mb-2 leading-tight">{recommendedModule.name}</h3>
+                    <p className="text-gray-600 text-sm font-medium leading-relaxed mb-6">{recommendedModule.description}</p>
+                    <a 
+                      href="https://vivirion.com/contact" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="block text-center w-full py-4 rounded-xl font-bold text-sm bg-emerald-50 text-[#047857] hover:bg-[#10b981] hover:text-white transition-colors border border-emerald-100"
+                    >
+                      Start Interactive Module
+                    </a>
+                  </div>
+
+                  <div className="w-full bg-gray-100 border border-gray-200 p-6 rounded-3xl shadow-sm">
+                    <p className="text-sm font-bold text-gray-800 mb-4 px-2">Still confused? Connect with a trusted healthcare professional.</p>
+                    <a 
+                      href="https://vivirion.com/vi-connect" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="block text-center w-full py-4 rounded-xl font-black text-lg bg-[#022c22] text-white hover:bg-[#047857] transition-all shadow-xl"
+                    >
+                      Vi Connect →
+                    </a>
+                  </div>
                 </div>
-                
-                <div className="relative pl-4 border-l-2 border-gray-200 ml-2 space-y-6">
-                  {patientData.journey.map((step) => {
-                    const isCompleted = step.status === 'completed';
-                    const isCurrent = step.status === 'current';
-                    const isExpanded = expandedStep === step.id;
+              ) : (
+                <div className="p-6">
+                  <div className="mb-8">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white border border-gray-200 rounded-2xl p-4 text-center shadow-sm">
+                        <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">Queue Position</p>
+                        <p className="text-4xl font-black text-[#047857]">{patientData.queuePosition}</p>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center relative overflow-hidden shadow-sm">
+                        <div className="absolute top-0 right-0 w-2 h-2 bg-[#10b981] rounded-full m-3 animate-pulse"></div>
+                        <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Wait For Next Step</p>
+                        <p className="text-4xl font-black text-[#022c22]">{patientData.estimatedWait}<span className="text-sm text-[#047857]">m</span></p>
+                      </div>
+                    </div>
 
-                    return (
-                      <div key={step.id} className="relative">
-                        <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-gray-50 flex items-center justify-center ${
-                          isCompleted ? 'bg-[#10b981]' : isCurrent ? 'bg-[#047857]' : 'bg-gray-300'
-                        }`}>
-                          {isCurrent && <div className="absolute w-6 h-6 border-2 border-[#10b981] rounded-full animate-ping opacity-75"></div>}
-                        </div>
+                    <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
+                      <span className="text-yellow-600 font-bold">!</span>
+                      <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
+                        <strong>Disclaimer:</strong> This is a live estimate for your <strong>next step only</strong>, not your total visit. Emergencies may cause sudden shifts.
+                      </p>
+                    </div>
+                  </div>
 
-                        <div 
-                          onClick={() => toggleStep(step.id)}
-                          className={`cursor-pointer border rounded-2xl transition-all shadow-sm ${
-                            isCurrent ? 'bg-white border-[#10b981]' : 'bg-white border-gray-200'
-                          }`}
-                        >
-                          <div className="p-4 flex justify-between items-center">
-                            <div>
-                              <p className={`text-[10px] font-extrabold uppercase tracking-widest mb-1 ${
-                                isCompleted ? 'text-[#10b981]' : isCurrent ? 'text-[#047857]' : 'text-gray-400'
-                              }`}>
-                                {isCompleted ? 'Completed' : isCurrent ? 'In Progress' : 'Up Next'}
-                              </p>
-                              <h3 className={`font-black ${isCurrent ? 'text-[#022c22]' : 'text-gray-700'}`}>{step.title}</h3>
-                            </div>
-                            <span className="text-gray-400 font-bold text-lg">{isExpanded ? '-' : '+'}</span>
+                  <div className="mb-6 flex justify-between items-end">
+                    <div>
+                      <h2 className="text-lg font-extrabold text-gray-900">Your Treatment Plan</h2>
+                      <p className="text-xs text-gray-500 font-medium mt-1">Tap any step to see exactly what to expect.</p>
+                    </div>
+                    <span className="bg-emerald-100 text-[#047857] border border-emerald-200 px-2 py-1 rounded text-[10px] font-extrabold tracking-widest uppercase">
+                      ID: {patientData.hospitalCode}
+                    </span>
+                  </div>
+                  
+                  <div className="relative pl-4 border-l-2 border-gray-200 ml-2 space-y-6">
+                    {patientData.journey.map((step) => {
+                      const isCompleted = step.status === 'completed';
+                      const isCurrent = step.status === 'current';
+                      const isExpanded = expandedStep === step.id;
+
+                      return (
+                        <div key={step.id} className="relative">
+                          <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-gray-50 flex items-center justify-center ${
+                            isCompleted ? 'bg-[#10b981]' : isCurrent ? 'bg-[#047857]' : 'bg-gray-300'
+                          }`}>
+                            {isCurrent && <div className="absolute w-6 h-6 border-2 border-[#10b981] rounded-full animate-ping opacity-75"></div>}
                           </div>
 
-                          {isExpanded && (
-                            <div className="p-4 pt-0 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
-                              <div className="mt-4 mb-4">
-                                <h4 className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">What to expect</h4>
-                                <p className="text-sm text-gray-800 font-medium leading-relaxed">{step.what}</p>
+                          <div 
+                            onClick={() => toggleStep(step.id)}
+                            className={`cursor-pointer border rounded-2xl transition-all shadow-sm ${
+                              isCurrent ? 'bg-white border-[#10b981]' : 'bg-white border-gray-200'
+                            }`}
+                          >
+                            <div className="p-4 flex justify-between items-center">
+                              <div>
+                                <p className={`text-[10px] font-extrabold uppercase tracking-widest mb-1 ${
+                                  isCompleted ? 'text-[#10b981]' : isCurrent ? 'text-[#047857]' : 'text-gray-400'
+                                }`}>
+                                  {isCompleted ? 'Completed' : isCurrent ? 'In Progress' : 'Up Next'}
+                                </p>
+                                <h3 className={`font-black ${isCurrent ? 'text-[#022c22]' : 'text-gray-700'}`}>{step.title}</h3>
                               </div>
-                              <div className="mb-4">
-                                <h4 className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Why it is important</h4>
-                                <p className="text-sm text-[#022c22] font-medium leading-relaxed">{step.why}</p>
-                              </div>
-
-                              {step.machine && (
-                                <div className="bg-white border border-gray-200 p-3 rounded-xl flex items-center justify-between mt-4 shadow-sm">
-                                  <div>
-                                    <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Facility Routing</p>
-                                    <p className="text-xs font-bold text-gray-800">{step.machine.name}</p>
-                                  </div>
-                                  <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase tracking-widest ${
-                                    step.machine.status === 'In Use' ? 'bg-emerald-50 text-[#047857] border border-emerald-100' : 
-                                    step.machine.status === 'Available' ? 'bg-green-100 text-green-700 border border-green-200' : 
-                                    'bg-gray-100 text-gray-600'
-                                  }`}>
-                                    {step.machine.status}
-                                  </span>
-                                </div>
-                              )}
-
+                              <span className="text-gray-400 font-bold text-lg">{isExpanded ? '-' : '+'}</span>
                             </div>
-                          )}
+
+                            {isExpanded && (
+                              <div className="p-4 pt-0 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
+                                <div className="mt-4 mb-4">
+                                  <h4 className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">What to expect</h4>
+                                  <p className="text-sm text-gray-800 font-medium leading-relaxed">{step.what}</p>
+                                </div>
+                                <div className="mb-4">
+                                  <h4 className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Why it is important</h4>
+                                  <p className="text-sm text-[#022c22] font-medium leading-relaxed">{step.why}</p>
+                                </div>
+
+                                {step.machine && (
+                                  <div className="bg-white border border-gray-200 p-3 rounded-xl flex items-center justify-between mt-4 shadow-sm">
+                                    <div>
+                                      <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Facility Routing</p>
+                                      <p className="text-xs font-bold text-gray-800">{step.machine.name}</p>
+                                    </div>
+                                    <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase tracking-widest ${
+                                      step.machine.status === 'In Use' ? 'bg-emerald-50 text-[#047857] border border-emerald-100' : 
+                                      step.machine.status === 'Available' ? 'bg-green-100 text-green-700 border border-green-200' : 
+                                      'bg-gray-100 text-gray-600'
+                                    }`}>
+                                      {step.machine.status}
+                                    </span>
+                                  </div>
+                                )}
+
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )
             )}
 
             {activeTab === 'wellness' && (
@@ -445,13 +493,15 @@ export default function PatientPortal() {
             )}
           </div>
 
-          <button 
-            onClick={() => setShowEduModal(true)}
-            className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-[#047857] border-2 border-[#10b981] px-6 py-3 rounded-full shadow-[0_10px_25px_rgba(16,185,129,0.3)] font-extrabold text-[11px] uppercase tracking-widest z-30 hover:bg-emerald-50 transition-all flex items-center gap-3 active:scale-95"
-          >
-            <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span>
-            Learn More
-          </button>
+          {!patientData?.isJourneyComplete && (
+            <button 
+              onClick={() => setShowEduModal(true)}
+              className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-[#047857] border-2 border-[#10b981] px-6 py-3 rounded-full shadow-[0_10px_25px_rgba(16,185,129,0.3)] font-extrabold text-[11px] uppercase tracking-widest z-30 hover:bg-emerald-50 transition-all flex items-center gap-3 active:scale-95"
+            >
+              <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span>
+              Learn More
+            </button>
+          )}
 
           {showEduModal && (
             <div className="absolute inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
