@@ -2,37 +2,37 @@ import React, { useState, useEffect } from 'react';
 
 const viLearnModules = [
   {
-    id: "dementia", name: "Dementia Care", length: "4 wks", level: "Intermediate",
+    id: "dementia", name: "Dementia Care", length: "4 weeks", level: "Intermediate",
     description: "Types of dementia and effective communication strategies.",
     focusAreas: "Memory Care, Alzheimer's", 
     triggerSymptoms: ["Memory Loss", "Confusion"]
   },
   {
-    id: "palliative", name: "Palliative Skills", length: "6 wks", level: "Advanced",
+    id: "palliative", name: "Palliative Skills", length: "6 weeks", level: "Advanced",
     description: "End-of-life care, pain management, and psychosocial support.",
     focusAreas: "Hospice, Pain Management", 
     triggerSymptoms: ["Chronic Pain", "Severe Illness"]
   },
   {
-    id: "behavioral", name: "Behavioral Mgmt", length: "4 wks", level: "Intermediate",
+    id: "behavioral", name: "Behavioral Mgmt", length: "4 weeks", level: "Intermediate",
     description: "Strategies to manage challenging behaviors in clients.",
     focusAreas: "Mental Health, Behavior", 
     triggerSymptoms: ["Agitation", "Mood Changes"]
   },
   {
-    id: "wound", name: "Wound & Skin Care", length: "5 wks", level: "Advanced",
+    id: "wound", name: "Wound & Skin Care", length: "5 weeks", level: "Advanced",
     description: "Training on wound assessment and infection control.",
     focusAreas: "Wound Care, Assessment", 
     triggerSymptoms: ["Wounds", "Cuts", "Burns", "Skin Irritation"]
   },
   {
-    id: "infection", name: "Infection Control", length: "4 wks", level: "Essential",
+    id: "infection", name: "Infection Control", length: "4 weeks", level: "Essential",
     description: "Best practices for preventing infections in healthcare.",
     focusAreas: "Safety, Protocols", 
     triggerSymptoms: ["Fever", "Chills", "Cough", "Respiratory Issues"]
   },
   {
-    id: "communication", name: "Therapeutic Comm", length: "3 wks", level: "Essential",
+    id: "communication", name: "Therapeutic Comm", length: "3 weeks", level: "Essential",
     description: "Techniques for building therapeutic relationships.",
     focusAreas: "Interaction, Empathy", 
     triggerSymptoms: ["General Consultation", "Anxiety", "Stress"]
@@ -60,6 +60,7 @@ export default function MediClearApp() {
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState('idle');
 
+  // SPEEDED UP BREATHING LOGIC (3s phases)
   useEffect(() => {
     let timeout1, timeout2, timeout3;
     let isActive = true;
@@ -79,9 +80,9 @@ export default function MediClearApp() {
           timeout3 = setTimeout(() => {
             if (!isActive) return;
             runBreathingCycle();
-          }, 4000);
-        }, 4000);
-      }, 4000);
+          }, 3000); // 3 seconds
+        }, 3000); // 3 seconds
+      }, 3000); // 3 seconds
     };
 
     if (isBreathing) {
@@ -132,8 +133,8 @@ export default function MediClearApp() {
   };
 
   const getBreathScale = () => {
-    if (breathPhase === 'inhale' || breathPhase === 'hold') return 'scale-[2.5] opacity-0';
-    return 'scale-100 opacity-100';
+    if (breathPhase === 'inhale' || breathPhase === 'hold') return 'scale-[3.5] opacity-0';
+    return 'scale-[0.8] opacity-100';
   };
 
   if (currentView === 'intake') {
@@ -241,12 +242,12 @@ export default function MediClearApp() {
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-lg font-extrabold text-gray-900">Education</h2>
                   <span className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200">
-                    Vivirion
+                    Powered by Vivirion
                   </span>
                 </div>
                 <div className="flex flex-col gap-5">
                   {getRecommendedModules().map(module => (
-                    <div key={module.id} className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm">
+                    <div key={module.id} className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm flex flex-col">
                       <div className="flex justify-between items-center mb-4">
                         <span className="bg-[#10b981] text-white text-[10px] font-black px-3 py-1.5 rounded-full">
                           {module.length}
@@ -254,10 +255,15 @@ export default function MediClearApp() {
                         <span className="text-xs font-bold text-[#047857]">{module.level}</span>
                       </div>
                       <h3 className="text-xl font-black text-[#022c22] mb-2 leading-tight">{module.name}</h3>
-                      <p className="text-gray-600 text-sm font-medium leading-relaxed mb-6">{module.description}</p>
-                      <button className="w-full py-4 rounded-xl font-bold text-sm bg-emerald-50 text-[#047857] hover:bg-[#10b981] hover:text-white transition-colors border border-emerald-100 hover:border-transparent">
+                      <p className="text-gray-600 text-sm font-medium leading-relaxed mb-6 flex-1">{module.description}</p>
+                      <a 
+                        href="https://vivirion.com/contact" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block text-center w-full py-4 rounded-xl font-bold text-sm bg-emerald-50 text-[#047857] hover:bg-[#10b981] hover:text-white transition-colors border border-emerald-100 hover:border-transparent mt-auto"
+                      >
                         Start Interactive Module
-                      </button>
+                      </a>
                     </div>
                   ))}
                 </div>
@@ -276,14 +282,12 @@ export default function MediClearApp() {
                   className="cursor-pointer relative overflow-hidden bg-[#022c22] p-8 rounded-3xl shadow-lg transition-all flex flex-col items-center justify-center min-h-[260px] border border-[#047857]"
                 >
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className={`w-32 h-32 bg-[#10b981]/20 rounded-full transition-all duration-[4000ms] ease-in-out ${getBreathScale()}`}></div>
+                    <div className={`w-32 h-32 bg-[#10b981]/30 rounded-full transition-all duration-[3000ms] ease-in-out ${getBreathScale()}`}></div>
                   </div>
                   
-                  <div className="w-16 h-16 bg-[#10b981] rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] z-10 relative mb-2"></div>
-                  
-                  <div className="relative z-10 text-center mt-4">
-                    <p className="font-bold text-white text-lg tracking-wide">{getBreathText()}</p>
-                    <p className="text-[#10b981] text-[10px] font-bold mt-2 uppercase tracking-widest">
+                  <div className="relative z-10 text-center">
+                    <p className="font-extrabold text-white text-xl tracking-wide">{getBreathText()}</p>
+                    <p className="text-[#10b981] text-[10px] font-bold mt-3 uppercase tracking-widest">
                       {isBreathing ? "Tap anywhere to stop" : "Guided Breathing Pacer"}
                     </p>
                   </div>
@@ -295,15 +299,15 @@ export default function MediClearApp() {
                   <ul className="flex flex-col gap-4 text-sm font-bold text-gray-700">
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">5</span> 
-                      things you can see
+                      Things you can see
                     </li>
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">4</span> 
-                      things you can touch
+                      Things you can touch
                     </li>
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">3</span> 
-                      things you can hear
+                      Things you can hear
                     </li>
                   </ul>
                 </div>
