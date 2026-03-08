@@ -26,7 +26,7 @@ This project was built to help reduce the clinical anxiety patients experience w
 
 MediClear operates across two synchronized web views. To test the full flow, you will need to use both the Nurse Command Center and the Patient Portal. 
 
-1. Navigate to the deployed Nurse Command Center by using this project URL (`https://mediclearhc.vercel.app/nurse`).
+1. Navigate to the deployed Nurse Command Center by using this project URL (https://mediclearhc.vercel.app/nurse).
 2. Log in using the default admin password: `mediclear123`.
 3. Go to the "Add Patient" tab. Enter a test name, select a few symptoms, and click a few routing steps (such as Blood Work and an X-Ray). 
 4. Click the generate button at the bottom of the screen to receive a 6-character patient access code.
