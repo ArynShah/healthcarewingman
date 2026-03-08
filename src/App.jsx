@@ -236,7 +236,7 @@ export default function MediClearApp() {
                 </div>
                 <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-2 h-2 bg-[#10b981] rounded-full m-3 animate-pulse"></div>
-                  <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Est. Wait</p>
+                  <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Wait For Next Step</p>
                   <p className="text-4xl font-black text-[#022c22]">{patientData.estimatedWait}<span className="text-sm text-[#047857]">m</span></p>
                 </div>
               </div>
@@ -244,7 +244,7 @@ export default function MediClearApp() {
               <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
                 <span className="text-yellow-600 font-bold">!</span>
                 <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
-                  <strong>Disclaimer:</strong> This wait time is a live estimate. Emergencies and critical traumas may cause sudden shifts in queue times.
+                  <strong>Disclaimer:</strong> This is a live estimate for your <strong>next step only</strong>, not your total visit. Emergencies may cause sudden shifts.
                 </p>
               </div>
             </div>
