@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
-// ==========================================
-// VIVIRION MODULE DATA
-// ==========================================
 const viLearnModules = [
   {
     id: "dementia", name: "Dementia Care", length: "4 Weeks", level: "Intermediate",
@@ -43,15 +41,65 @@ const viLearnModules = [
   }
 ];
 
+const stepDescriptions = {
+  "Triage & Vitals": {
+    what: "Initial assessment of your blood pressure, heart rate, and symptom severity.",
+    why: "Helps our team prioritize care and determine the exact diagnostic tests you need."
+  },
+  "Physician Consultation": {
+    what: "A one-on-one review of your symptoms and test results with the attending ER doctor.",
+    why: "Provides a formal diagnosis, answers your questions, and creates a treatment plan."
+  },
+  "Blood Work": {
+    what: "A standard blood draw by our phlebotomy team.",
+    why: "Checks for infections, organ function, and basic metabolic panels."
+  },
+  "X-Ray": {
+    what: "A quick, painless scan of your bones or chest.",
+    why: "Rules out fractures, pneumonia, or structural issues."
+  },
+  "CT Scan": {
+    what: "A detailed 3D imaging scan.",
+    why: "Provides in-depth views of internal organs and soft tissues."
+  },
+  "MRI Scan": {
+    what: "A magnetic imaging scan using powerful magnets.",
+    why: "Gives high-resolution images of the brain, spine, or joints without radiation."
+  },
+  "Ultrasound": {
+    what: "A gel-based imaging test using sound waves.",
+    why: "Quickly examines organs like the gallbladder, kidneys, or vascular system."
+  },
+  "ECG / EKG": {
+    what: "Small sticky sensors placed on your chest and limbs.",
+    why: "Measures the electrical activity of your heart to rule out arrhythmias."
+  },
+  "Medication Review": {
+    what: "A consultation with the pharmacy or care team.",
+    why: "Ensures no adverse interactions with your current prescriptions."
+  },
+  "Specialist Consult": {
+    what: "Evaluation by an on-call specialist.",
+    why: "Provides expert guidance on specific complex conditions."
+  },
+  "Discharge Instructions": {
+    what: "Finalizing your paperwork and providing at-home care instructions.",
+    why: "Ensures you have the medications and knowledge needed to recover safely."
+  },
+  "Admit to Hospital": {
+    what: "Transfer to an inpatient ward.",
+    why: "Allows for continuous monitoring and extended treatment."
+  }
+};
+
 export default function PatientPortal() {
   const [currentView, setCurrentView] = useState('login');
   const [patientCode, setPatientCode] = useState('');
   const [patientData, setPatientData] = useState(null);
   const [activeTab, setActiveTab] = useState('journey'); 
-  const [expandedStep, setExpandedStep] = useState('1'); 
+  const [expandedStep, setExpandedStep] = useState('2'); 
   const [showEduModal, setShowEduModal] = useState(false);
 
-  // WELLNESS LOGIC
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState('idle');
 
@@ -90,13 +138,8 @@ export default function PatientPortal() {
     };
   }, [isBreathing]);
 
-  // ==========================================
-  // REAL MONGODB LOGIN LOGIC
-  // ==========================================
   const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Format code: remove spaces and make uppercase
     const cleanCode = patientCode.trim().toUpperCase();
     
     if (cleanCode.length !== 6) {
@@ -121,23 +164,29 @@ export default function PatientPortal() {
             if (index < dbPatient.currentStepIndex) stepStatus = 'completed';
             if (index === dbPatient.currentStepIndex) stepStatus = 'current';
 
+            const descriptions = stepDescriptions[stepName] || {
+              what: `Standard procedure for ${stepName.toLowerCase()}.`,
+              why: "Determined necessary by your care team."
+            };
+
             return {
               id: String(index + 1),
               status: stepStatus, 
               title: stepName,
-              what: `Standard procedure for ${stepName.toLowerCase()}.`,
-              why: "Determined necessary by your triage nurse."
+              what: descriptions.what,
+              why: descriptions.why
             };
           })
         };
 
         setPatientData(formattedData);
+        setExpandedStep(String(dbPatient.currentStepIndex + 1));
         setCurrentView('patient');
       } else {
         alert("Patient code not found! Make sure the nurse created it first.");
       }
     } catch (err) {
-      alert("Error connecting to database. Is the terminal running 'npm run server'?");
+      alert("Error connecting to database.");
     }
   };
 
@@ -163,9 +212,6 @@ export default function PatientPortal() {
     return 'scale-[0.8] opacity-100';
   };
 
-  // ==========================================
-  // VIEW 1: NURSE CODE LOGIN
-  // ==========================================
   if (currentView === 'login') {
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center sm:p-4 font-sans">
@@ -192,7 +238,6 @@ export default function PatientPortal() {
                 className="w-full border-2 border-gray-200 rounded-2xl py-6 text-center text-3xl tracking-[0.3em] bg-gray-50 focus:outline-none focus:border-[#10b981] focus:bg-emerald-50/50 transition-colors text-gray-900 font-extrabold"
                 placeholder="------"
               />
-              <p className="text-center text-[10px] text-gray-400 mt-3 uppercase tracking-widest font-bold">Example: A3K7P2</p>
             </div>
 
             <button type="submit" className="w-full py-5 bg-[#022c22] text-white font-extrabold rounded-xl hover:bg-[#047857] transition-all shadow-xl shadow-emerald-900/20 text-lg tracking-wide">
@@ -204,9 +249,6 @@ export default function PatientPortal() {
     );
   }
 
-  // ==========================================
-  // VIEW 2: PATIENT DASHBOARD
-  // ==========================================
   if (currentView === 'patient') {
     const recommendedModule = getRecommendedModule();
 
@@ -228,33 +270,34 @@ export default function PatientPortal() {
 
           <div className="flex-1 overflow-y-auto pb-32">
             
-            {/* HERO SECTION */}
             <div className="bg-white px-6 py-8 border-b border-gray-200 shadow-sm relative">
-              <h1 className="text-2xl font-extrabold text-gray-900 mb-6">Hi, {patientData.name}.</h1>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 text-center">
-                  <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">Queue Position</p>
-                  <p className="text-4xl font-black text-[#047857]">{patientData.queuePosition}</p>
-                </div>
-                <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-2 h-2 bg-[#10b981] rounded-full m-3 animate-pulse"></div>
-                  <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Wait For Next Step</p>
-                  <p className="text-4xl font-black text-[#022c22]">{patientData.estimatedWait}<span className="text-sm text-[#047857]">m</span></p>
-                </div>
-              </div>
-
-              <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
-                <span className="text-yellow-600 font-bold">!</span>
-                <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
-                  <strong>Disclaimer:</strong> This is a live estimate for your <strong>next step only</strong>, not your total visit. Emergencies may cause sudden shifts.
-                </p>
-              </div>
+              <h1 className="text-2xl font-extrabold text-gray-900">Hi, {patientData.name}.</h1>
             </div>
 
-            {/* TAB 1: JOURNEY */}
             {activeTab === 'journey' && (
               <div className="p-6">
+                
+                <div className="mb-8">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-4 text-center shadow-sm">
+                      <p className="text-[10px] font-extrabold text-gray-500 uppercase tracking-widest mb-1">Queue Position</p>
+                      <p className="text-4xl font-black text-[#047857]">{patientData.queuePosition}</p>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 text-center relative overflow-hidden shadow-sm">
+                      <div className="absolute top-0 right-0 w-2 h-2 bg-[#10b981] rounded-full m-3 animate-pulse"></div>
+                      <p className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Wait For Next Step</p>
+                      <p className="text-4xl font-black text-[#022c22]">{patientData.estimatedWait}<span className="text-sm text-[#047857]">m</span></p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
+                    <span className="text-yellow-600 font-bold">!</span>
+                    <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
+                      <strong>Disclaimer:</strong> This is a live estimate for your <strong>next step only</strong>, not your total visit. Emergencies may cause sudden shifts.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="mb-6 flex justify-between items-end">
                   <div>
                     <h2 className="text-lg font-extrabold text-gray-900">Your Treatment Plan</h2>
@@ -317,7 +360,6 @@ export default function PatientPortal() {
               </div>
             )}
 
-            {/* TAB 2: WELLNESS */}
             {activeTab === 'wellness' && (
               <div className="p-6 flex flex-col gap-6">
                 <div className="mb-2">
@@ -371,7 +413,6 @@ export default function PatientPortal() {
             )}
           </div>
 
-          {/* FLOATING ACTION BUTTON (VIVIRION) */}
           <button 
             onClick={() => setShowEduModal(true)}
             className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-[#047857] border-2 border-[#10b981] px-6 py-3 rounded-full shadow-[0_10px_25px_rgba(16,185,129,0.3)] font-extrabold text-[11px] uppercase tracking-widest z-30 hover:bg-emerald-50 transition-all flex items-center gap-3 active:scale-95"
@@ -380,7 +421,6 @@ export default function PatientPortal() {
             Learn More
           </button>
 
-          {/* VIVIRION MODAL OVERLAY */}
           {showEduModal && (
             <div className="absolute inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
               <div className="bg-white w-full rounded-[2rem] p-8 shadow-2xl relative animate-in fade-in slide-in-from-bottom-10 duration-300">
@@ -417,7 +457,6 @@ export default function PatientPortal() {
             </div>
           )}
 
-          {/* BOTTOM NAVIGATION */}
           <div className="absolute bottom-0 w-full bg-white border-t border-gray-200 flex p-3 pb-8 sm:pb-3 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-20">
             <button 
               onClick={() => setActiveTab('journey')}
