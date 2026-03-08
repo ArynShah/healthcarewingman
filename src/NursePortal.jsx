@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const availableSymptoms = ["Memory Loss", "Confusion", "Chronic Pain", "Severe Illness", "Agitation", "Mood Changes", "Wounds", "Cuts", "Burns", "Skin Irritation", "Fever", "Chills", "Cough", "Respiratory Issues", "General Consultation", "Anxiety", "Stress"];
 
-// Expanded, realistic hospital steps
 const nextStepOptions = [
   "Physician Consultation", "Blood Work", "X-Ray", "CT Scan", "MRI Scan", 
   "Ultrasound", "ECG / EKG", "Medication Review", "Specialist Consult", 
@@ -19,7 +18,6 @@ export default function NursePortal() {
   const [nurseForm, setNurseForm] = useState({ name: "", healthCard: "" });
   const [nurseSymptoms, setNurseSymptoms] = useState([]);
   
-  // Triage is locked as the first step by default
   const [nurseNextSteps, setNurseNextSteps] = useState(["Triage & Vitals"]);
   const [patientsDb, setPatientsDb] = useState([]);
 
@@ -43,7 +41,6 @@ export default function NursePortal() {
     setNurseSymptoms(prev => prev.includes(symptom) ? prev.filter(s => s !== symptom) : [...prev, symptom]);
   };
 
-  // Add or remove a step (Triage cannot be removed)
   const toggleNurseStep = (step) => {
     if (step === "Triage & Vitals") return; 
     setNurseNextSteps(prev => {
@@ -52,10 +49,9 @@ export default function NursePortal() {
     });
   };
 
-  // Reorder steps
   const moveStep = (index, direction) => {
     const newSteps = [...nurseNextSteps];
-    if (direction === 'up' && index > 1) { // Prevent moving above Triage
+    if (direction === 'up' && index > 1) { 
       [newSteps[index - 1], newSteps[index]] = [newSteps[index], newSteps[index - 1]];
     } else if (direction === 'down' && index < newSteps.length - 1) {
       [newSteps[index + 1], newSteps[index]] = [newSteps[index], newSteps[index + 1]];
@@ -80,7 +76,7 @@ export default function NursePortal() {
       healthCard: nurseForm.healthCard.trim(),
       symptoms: nurseSymptoms,
       nextSteps: nurseNextSteps,
-      currentStepIndex: 0 // Start at Triage
+      currentStepIndex: 1 
     };
 
     try {
@@ -103,7 +99,6 @@ export default function NursePortal() {
     }
   };
 
-  // NEW: Update live patient stage
   const updatePatientStage = async (id, newIndex) => {
     try {
       const res = await fetch(`${API_BASE}/api/patients/${id}`, {
@@ -112,7 +107,7 @@ export default function NursePortal() {
         body: JSON.stringify({ currentStepIndex: newIndex }),
       });
       if (res.ok) {
-        fetchPatients(); // Refresh UI
+        fetchPatients(); 
       }
     } catch (err) {
       alert("Error updating stage.");
@@ -174,7 +169,7 @@ export default function NursePortal() {
                   <div key={index} className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2 rounded-lg text-xs font-bold text-[#022c22]">
                     <span>{index + 1}. {step}</span>
                     <div className="flex gap-1">
-                      {index > 1 && ( // Index 0 is Triage, cannot move above it
+                      {index > 1 && (
                         <button onClick={() => moveStep(index, 'up')} className="px-2 py-1 bg-white rounded shadow-sm hover:bg-gray-100">↑</button>
                       )}
                       {index < nurseNextSteps.length - 1 && index !== 0 && (
@@ -197,6 +192,15 @@ export default function NursePortal() {
                     <p className="font-extrabold text-lg text-gray-900">{p.name}</p>
                     <span className="bg-emerald-100 text-[#047857] px-2 py-1 rounded text-xs font-bold tracking-widest">{p.code}</span>
                   </div>
+
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Current Stage</p>
+                    <p className="text-sm font-black text-[#047857]">
+                      {p.currentStepIndex >= p.nextSteps.length 
+                        ? "Care Complete" 
+                        : p.nextSteps[p.currentStepIndex]}
+                    </p>
+                  </div>
                   
                   <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
                     <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Live Stage Management</p>
@@ -218,7 +222,7 @@ export default function NursePortal() {
                         ← Back
                       </button>
                       <button 
-                        disabled={p.currentStepIndex >= p.nextSteps.length - 1}
+                        disabled={p.currentStepIndex >= p.nextSteps.length}
                         onClick={() => updatePatientStage(p._id || p.id, p.currentStepIndex + 1)}
                         className="px-3 py-1.5 text-[10px] font-bold bg-[#047857] text-white rounded disabled:opacity-50"
                       >
