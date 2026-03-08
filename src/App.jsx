@@ -1,43 +1,49 @@
 import React, { useState, useEffect } from 'react';
 
-// MOCK DATA
 const viLearnModules = [
   {
     id: "dementia", name: "Dementia Care", length: "4 wks", level: "Intermediate",
     description: "Types of dementia and effective communication strategies.",
-    focusAreas: "Memory Care, Alzheimer's", triggerSymptoms: ["Memory Loss / Confusion"]
+    focusAreas: "Memory Care, Alzheimer's", 
+    triggerSymptoms: ["Memory Loss", "Confusion"]
   },
   {
     id: "palliative", name: "Palliative Skills", length: "6 wks", level: "Advanced",
     description: "End-of-life care, pain management, and psychosocial support.",
-    focusAreas: "Hospice, Pain Management", triggerSymptoms: ["Chronic Pain / Severe Illness"]
+    focusAreas: "Hospice, Pain Management", 
+    triggerSymptoms: ["Chronic Pain", "Severe Illness"]
   },
   {
     id: "behavioral", name: "Behavioral Mgmt", length: "4 wks", level: "Intermediate",
     description: "Strategies to manage challenging behaviors in clients.",
-    focusAreas: "Mental Health, Behavior", triggerSymptoms: ["Agitation / Mood Changes"]
+    focusAreas: "Mental Health, Behavior", 
+    triggerSymptoms: ["Agitation", "Mood Changes"]
   },
   {
     id: "wound", name: "Wound & Skin Care", length: "5 wks", level: "Advanced",
     description: "Training on wound assessment and infection control.",
-    focusAreas: "Wound Care, Assessment", triggerSymptoms: ["Wounds / Cuts / Burns", "Skin Irritation"]
+    focusAreas: "Wound Care, Assessment", 
+    triggerSymptoms: ["Wounds", "Cuts", "Burns", "Skin Irritation"]
   },
   {
     id: "infection", name: "Infection Control", length: "4 wks", level: "Essential",
     description: "Best practices for preventing infections in healthcare.",
-    focusAreas: "Safety, Protocols", triggerSymptoms: ["Fever / Chills", "Cough / Respiratory Issues"]
+    focusAreas: "Safety, Protocols", 
+    triggerSymptoms: ["Fever", "Chills", "Cough", "Respiratory Issues"]
   },
   {
     id: "communication", name: "Therapeutic Comm", length: "3 wks", level: "Essential",
     description: "Techniques for building therapeutic relationships.",
-    focusAreas: "Interaction, Empathy", triggerSymptoms: ["General Consultation", "Anxiety / Stress"]
+    focusAreas: "Interaction, Empathy", 
+    triggerSymptoms: ["General Consultation", "Anxiety", "Stress"]
   }
 ];
 
 const availableSymptoms = [
-  "Memory Loss / Confusion", "Chronic Pain / Severe Illness", "Agitation / Mood Changes",
-  "Wounds / Cuts / Burns", "Skin Irritation", "Fever / Chills",
-  "Cough / Respiratory Issues", "General Consultation", "Anxiety / Stress"
+  "Memory Loss", "Confusion", "Chronic Pain", "Severe Illness", 
+  "Agitation", "Mood Changes", "Wounds", "Cuts", "Burns", "Skin Irritation", 
+  "Fever", "Chills", "Cough", "Respiratory Issues", 
+  "General Consultation", "Anxiety", "Stress"
 ];
 
 export default function MediClearApp() {
@@ -51,7 +57,6 @@ export default function MediClearApp() {
     { id: "blood_1", name: "Blood Analysis Lab", status: "Available" }
   ]);
 
-  // BREATHING TOOL LOGIC
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState('idle');
 
@@ -119,7 +124,6 @@ export default function MediClearApp() {
     return recommended.length > 0 ? recommended : [viLearnModules[5]];
   };
 
-  // UI HELPERS
   const getBreathText = () => {
     if (breathPhase === 'idle') return "Tap to start";
     if (breathPhase === 'inhale') return "Inhale slowly...";
@@ -128,55 +132,54 @@ export default function MediClearApp() {
   };
 
   const getBreathScale = () => {
-    if (breathPhase === 'inhale' || breathPhase === 'hold') return 'scale-[2]';
-    return 'scale-100';
+    if (breathPhase === 'inhale' || breathPhase === 'hold') return 'scale-[2.5] opacity-0';
+    return 'scale-100 opacity-100';
   };
 
-  // VIEW 1: INTAKE
   if (currentView === 'intake') {
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center sm:p-4 font-sans">
-        <div className="w-full max-w-md bg-white sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative">
+        <div className="w-full max-w-md bg-white sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative h-[100dvh] sm:h-[850px]">
           
-          <div className="bg-[#022c22] px-8 py-12 text-center relative overflow-hidden">
+          <div className="bg-[#022c22] px-8 py-10 text-center relative overflow-hidden flex-shrink-0">
             <div className="absolute top-0 left-0 w-full h-full bg-[#047857]/20 blur-3xl"></div>
             <h1 className="text-4xl font-extrabold text-white tracking-tight relative z-10">MediClear</h1>
-            <p className="text-emerald-300/80 mt-2 font-medium tracking-wide relative z-10 text-sm">Clinical Patient Check-In</p>
+            <p className="text-emerald-300/80 mt-1 font-medium tracking-wide relative z-10 text-sm">Clinical Patient Check-In</p>
           </div>
 
-          <form onSubmit={handleLogin} className="p-8 flex-1 flex flex-col gap-6 overflow-y-auto">
+          <form onSubmit={handleLogin} className="p-8 flex-1 flex flex-col gap-6 overflow-y-auto pb-20">
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Legal Full Name</label>
+              <label className="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest">Legal Full Name</label>
               <input 
                 type="text" required value={patientData.name}
                 onChange={(e) => setPatientData({...patientData, name: e.target.value})}
-                className="w-full border-b-2 border-gray-200 p-3 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-medium"
+                className="w-full border-b-2 border-gray-200 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-bold"
                 placeholder="e.g. Jane Doe"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Health Card Number</label>
+              <label className="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest">Health Card Number</label>
               <input 
                 type="text" value={patientData.healthCard}
                 onChange={(e) => setPatientData({...patientData, healthCard: e.target.value})}
-                className="w-full border-b-2 border-gray-200 p-3 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-medium"
+                className="w-full border-b-2 border-gray-200 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-bold"
                 placeholder="Optional"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-500 mb-4 uppercase tracking-widest">Select Primary Symptoms</label>
+              <label className="block text-[11px] font-bold text-gray-500 mb-4 uppercase tracking-widest">Select Primary Symptoms</label>
               <div className="flex flex-wrap gap-2">
                 {availableSymptoms.map(symptom => {
                   const isSelected = patientData.symptoms.includes(symptom);
                   return (
                     <button
                       key={symptom} type="button" onClick={() => toggleSymptom(symptom)}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                      className={`px-3 py-2 rounded-lg text-[13px] font-bold transition-all duration-300 ${
                         isSelected 
                           ? 'bg-[#10b981] text-white shadow-md shadow-[#10b981]/30 scale-[1.02]' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-transparent'
                       }`}
                     >
                       {symptom}
@@ -186,12 +189,12 @@ export default function MediClearApp() {
               </div>
             </div>
 
-            <button type="submit" className="mt-auto w-full py-4 bg-[#022c22] text-white font-bold rounded-xl hover:bg-[#047857] transition-all shadow-xl shadow-emerald-900/20 text-lg tracking-wide">
-              Secure Check-In
+            <button type="submit" className="mt-4 w-full py-4 bg-[#022c22] text-white font-extrabold rounded-xl hover:bg-[#047857] transition-all shadow-xl shadow-emerald-900/20 text-lg tracking-wide">
+              {patientData.name ? "Save & Continue" : "Secure Check-In"}
             </button>
           </form>
 
-          <button onClick={() => setCurrentView('iot')} className="absolute bottom-4 right-4 text-xs font-bold text-gray-300 hover:text-gray-500 transition-colors">
+          <button onClick={() => setCurrentView('iot')} className="absolute bottom-4 right-4 text-[10px] font-extrabold uppercase tracking-widest text-gray-300 hover:text-gray-500 transition-colors bg-white px-2 py-1 rounded">
             Admin
           </button>
         </div>
@@ -199,7 +202,6 @@ export default function MediClearApp() {
     );
   }
 
-  // VIEW 2: PATIENT APP
   if (currentView === 'patient') {
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center sm:p-4 font-sans">
@@ -207,16 +209,23 @@ export default function MediClearApp() {
           
           <nav className="flex items-center justify-between px-6 py-5 bg-[#022c22] text-white shadow-md z-20">
             <span className="text-xl font-extrabold tracking-tight">MediClear</span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></div>
-              <span className="text-xs font-bold text-emerald-300/80 uppercase tracking-widest">Live</span>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setCurrentView('intake')}
+                className="bg-[#047857] hover:bg-[#10b981] transition-colors text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-lg"
+              >
+                Edit Profile
+              </button>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></div>
+              </div>
             </div>
           </nav>
 
           <div className="flex-1 overflow-y-auto pb-28">
             <div className="bg-white px-6 py-8 border-b border-gray-200 shadow-sm relative">
               <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Hi, {patientData.name}.</h1>
-              <p className="text-gray-500 text-sm mb-6">Your care team is preparing your room.</p>
+              <p className="text-gray-500 text-sm mb-6 font-medium">Your care team is preparing your room.</p>
               
               <div className="flex items-center gap-4 bg-emerald-50 border border-emerald-100 px-5 py-4 rounded-2xl">
                 <div className="w-8 h-8 rounded-full border-4 border-emerald-200 border-t-[#10b981] animate-spin flex-shrink-0"></div>
@@ -227,7 +236,6 @@ export default function MediClearApp() {
               </div>
             </div>
 
-            {/* TAB 1: EDUCATION */}
             {activeTab === 'education' && (
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
@@ -256,7 +264,6 @@ export default function MediClearApp() {
               </div>
             )}
 
-            {/* TAB 2: WELLNESS */}
             {activeTab === 'wellness' && (
               <div className="p-6 flex flex-col gap-6">
                 <div className="mb-2">
@@ -264,16 +271,17 @@ export default function MediClearApp() {
                   <p className="text-xs text-gray-500 font-medium mt-1">Exercises to reduce clinical anxiety while you wait.</p>
                 </div>
                 
-                {/* Guided Breathing with CSS Animation */}
                 <div 
                   onClick={() => setIsBreathing(!isBreathing)}
                   className="cursor-pointer relative overflow-hidden bg-[#022c22] p-8 rounded-3xl shadow-lg transition-all flex flex-col items-center justify-center min-h-[260px] border border-[#047857]"
                 >
-                  <div className={`w-32 h-32 bg-[#10b981]/20 rounded-full flex items-center justify-center transition-all duration-[4000ms] ease-in-out ${getBreathScale()}`}>
-                    <div className="w-16 h-16 bg-[#10b981] rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)]"></div>
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className={`w-32 h-32 bg-[#10b981]/20 rounded-full transition-all duration-[4000ms] ease-in-out ${getBreathScale()}`}></div>
                   </div>
                   
-                  <div className="absolute bottom-8 text-center">
+                  <div className="w-16 h-16 bg-[#10b981] rounded-full shadow-[0_0_30px_rgba(16,185,129,0.5)] z-10 relative mb-2"></div>
+                  
+                  <div className="relative z-10 text-center mt-4">
                     <p className="font-bold text-white text-lg tracking-wide">{getBreathText()}</p>
                     <p className="text-[#10b981] text-[10px] font-bold mt-2 uppercase tracking-widest">
                       {isBreathing ? "Tap anywhere to stop" : "Guided Breathing Pacer"}
@@ -281,18 +289,25 @@ export default function MediClearApp() {
                   </div>
                 </div>
 
-                {/* Grounding Technique */}
                 <div className="bg-white border border-gray-200 p-6 rounded-3xl shadow-sm">
                   <h3 className="font-extrabold text-gray-900 mb-2">The 5-4-3 Method</h3>
                   <p className="text-xs text-gray-500 mb-5 font-medium leading-relaxed">Quiet your mind by silently identifying elements in the room around you.</p>
                   <ul className="flex flex-col gap-4 text-sm font-bold text-gray-700">
-                    <li className="flex items-center gap-4"><span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">5</span> things you can see</li>
-                    <li className="flex items-center gap-4"><span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">4</span> things you can touch</li>
-                    <li className="flex items-center gap-4"><span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">3</span> things you can hear</li>
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">5</span> 
+                      things you can see
+                    </li>
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">4</span> 
+                      things you can touch
+                    </li>
+                    <li className="flex items-center gap-4">
+                      <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">3</span> 
+                      things you can hear
+                    </li>
                   </ul>
                 </div>
 
-                {/* Muscle Relaxation */}
                 <div className="bg-white border border-gray-200 p-6 rounded-3xl shadow-sm">
                   <h3 className="font-extrabold text-gray-900 mb-2">Physical Release</h3>
                   <p className="text-xs text-gray-500 mb-4 font-medium leading-relaxed">Release physical tension stored in your body.</p>
@@ -303,7 +318,6 @@ export default function MediClearApp() {
               </div>
             )}
 
-            {/* TAB 3: FACILITY */}
             {activeTab === 'facility' && (
               <div className="p-6">
                 <div className="mb-6">
@@ -357,7 +371,6 @@ export default function MediClearApp() {
     );
   }
 
-  // VIEW 3: IOT CONTROLLER
   if (currentView === 'iot') {
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center sm:p-4 font-sans text-gray-800">
