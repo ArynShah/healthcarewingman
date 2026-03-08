@@ -42,6 +42,19 @@ app.get("/api/machines", async (_req, res) => {
   res.json(machines);
 });
 
+app.put("/api/machines/:id", async (req, res) => {
+  const updated = await Machine.findOneAndUpdate(
+    { id: req.params.id },
+    { $set: { status: req.body.status } },
+    { new: true }
+  ).lean();
+
+  if (!updated) {
+    return res.status(404).json({ message: "Machine not found" });
+  }
+  res.json(updated);
+});
+
 app.put("/api/patients/:id", async (req, res) => {
   const updated = await Patient.findByIdAndUpdate(
     req.params.id,
