@@ -36,7 +36,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center font-sans p-6">
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight mb-3">MediClear</h1>
+        <img src="/MediClearLogo.jpg" alt="MediClear" className="mx-auto mb-3 w-72"/>
         <p className="text-lg text-gray-500">Select your portal destination</p>
       </div>
 
