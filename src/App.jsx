@@ -5,37 +5,37 @@ import React, { useState, useEffect } from 'react';
 // ==========================================
 const viLearnModules = [
   {
-    id: "dementia", name: "Dementia Care", length: "4 weeks", level: "Intermediate",
+    id: "dementia", name: "Dementia Care", length: "4 Weeks", level: "Intermediate",
     description: "Types of dementia and effective communication strategies.",
     focusAreas: "Memory Care, Alzheimer's", 
     triggerSymptoms: ["Memory Loss", "Confusion"]
   },
   {
-    id: "palliative", name: "Palliative Skills", length: "6 weeks", level: "Advanced",
+    id: "palliative", name: "Palliative Skills", length: "6 Weeks", level: "Advanced",
     description: "End-of-life care, pain management, and psychosocial support.",
     focusAreas: "Hospice, Pain Management", 
     triggerSymptoms: ["Chronic Pain", "Severe Illness"]
   },
   {
-    id: "behavioral", name: "Behavioral Mgmt", length: "4 weeks", level: "Intermediate",
+    id: "behavioral", name: "Behavioral Management", length: "4 Weeks", level: "Intermediate",
     description: "Strategies to manage challenging behaviors in clients.",
     focusAreas: "Mental Health, Behavior", 
     triggerSymptoms: ["Agitation", "Mood Changes"]
   },
   {
-    id: "wound", name: "Wound & Skin Care", length: "5 weeks", level: "Advanced",
+    id: "wound", name: "Wound & Skin Care", length: "5 Weeks", level: "Advanced",
     description: "Training on wound assessment and infection control.",
     focusAreas: "Wound Care, Assessment", 
     triggerSymptoms: ["Wounds", "Cuts", "Burns", "Skin Irritation"]
   },
   {
-    id: "infection", name: "Infection Control", length: "4 weeks", level: "Essential",
+    id: "infection", name: "Infection Control", length: "4 Weeks", level: "Essential",
     description: "Best practices for preventing infections in healthcare.",
     focusAreas: "Safety, Protocols", 
     triggerSymptoms: ["Fever", "Chills", "Cough", "Respiratory Issues"]
   },
   {
-    id: "communication", name: "Therapeutic Comm", length: "3 weeks", level: "Essential",
+    id: "communication", name: "Therapeutic Communication", length: "3 Weeks", level: "Essential",
     description: "Techniques for building therapeutic relationships.",
     focusAreas: "Interaction, Empathy", 
     triggerSymptoms: ["General Consultation", "Anxiety", "Stress"]
