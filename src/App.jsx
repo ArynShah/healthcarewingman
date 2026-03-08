@@ -48,8 +48,13 @@ const availableSymptoms = [
 
 export default function MediClearApp() {
   const [currentView, setCurrentView] = useState('intake');
-  const [patientData, setPatientData] = useState({ name: "", healthCard: "", symptoms: [] });
+  const [patientData, setPatientData] = useState({ name: "", healthCard: "", hospitalCode: "", symptoms: [] });
   const [activeTab, setActiveTab] = useState('education'); 
+  
+  // INFRASTRUCTURE PREP: 
+  // In a real app, this state would be replaced by a live listener to:
+  // db.collection('facilities').doc(patientData.hospitalCode).collection('machines')
+  const [adminFacilityCode, setAdminFacilityCode] = useState("1234");
   const [machines, setMachines] = useState([
     { id: "mri_1", name: "MRI Scanner Room A", status: "In Use" },
     { id: "ct_1", name: "CT Scanner", status: "Available" },
@@ -60,7 +65,6 @@ export default function MediClearApp() {
   const [isBreathing, setIsBreathing] = useState(false);
   const [breathPhase, setBreathPhase] = useState('idle');
 
-  // SPEEDED UP BREATHING LOGIC (3s phases)
   useEffect(() => {
     let timeout1, timeout2, timeout3;
     let isActive = true;
@@ -80,9 +84,9 @@ export default function MediClearApp() {
           timeout3 = setTimeout(() => {
             if (!isActive) return;
             runBreathingCycle();
-          }, 3000); // 3 seconds
-        }, 3000); // 3 seconds
-      }, 3000); // 3 seconds
+          }, 3000); 
+        }, 3000); 
+      }, 3000); 
     };
 
     if (isBreathing) {
@@ -110,8 +114,15 @@ export default function MediClearApp() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (patientData.name && patientData.symptoms.length > 0) setCurrentView('patient');
-    else alert("Please enter your name and select at least one symptom.");
+    if (!patientData.name || patientData.symptoms.length === 0) {
+      alert("Please enter your name and select at least one symptom.");
+      return;
+    }
+    if (patientData.hospitalCode.length !== 4 || isNaN(patientData.hospitalCode)) {
+      alert("Please enter a valid 4-digit facility code.");
+      return;
+    }
+    setCurrentView('patient');
   };
 
   const updateMachine = (id, newStatus) => {
@@ -159,14 +170,25 @@ export default function MediClearApp() {
               />
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest">Health Card Number</label>
-              <input 
-                type="text" value={patientData.healthCard}
-                onChange={(e) => setPatientData({...patientData, healthCard: e.target.value})}
-                className="w-full border-b-2 border-gray-200 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-bold"
-                placeholder="Optional"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-500 mb-2 uppercase tracking-widest">Health Card</label>
+                <input 
+                  type="text" value={patientData.healthCard}
+                  onChange={(e) => setPatientData({...patientData, healthCard: e.target.value})}
+                  className="w-full border-b-2 border-gray-200 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-bold"
+                  placeholder="Optional"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[#047857] mb-2 uppercase tracking-widest">Facility Code *</label>
+                <input 
+                  type="text" required maxLength="4" value={patientData.hospitalCode}
+                  onChange={(e) => setPatientData({...patientData, hospitalCode: e.target.value})}
+                  className="w-full border-b-2 border-[#10b981]/50 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-800 font-bold"
+                  placeholder="4 Digits (e.g. 1234)"
+                />
+              </div>
             </div>
 
             <div>
@@ -191,7 +213,7 @@ export default function MediClearApp() {
             </div>
 
             <button type="submit" className="mt-4 w-full py-4 bg-[#022c22] text-white font-extrabold rounded-xl hover:bg-[#047857] transition-all shadow-xl shadow-emerald-900/20 text-lg tracking-wide">
-              {patientData.name ? "Save & Continue" : "Secure Check-In"}
+              {patientData.name ? "Connect to Facility" : "Secure Check-In"}
             </button>
           </form>
 
@@ -224,17 +246,9 @@ export default function MediClearApp() {
           </nav>
 
           <div className="flex-1 overflow-y-auto pb-28">
-            <div className="bg-white px-6 py-8 border-b border-gray-200 shadow-sm relative">
+            <div className="bg-white px-6 py-6 border-b border-gray-200 shadow-sm relative">
               <h1 className="text-2xl font-extrabold text-gray-900 mb-1">Hi, {patientData.name}.</h1>
-              <p className="text-gray-500 text-sm mb-6 font-medium">Your care team is preparing your room.</p>
-              
-              <div className="flex items-center gap-4 bg-emerald-50 border border-emerald-100 px-5 py-4 rounded-2xl">
-                <div className="w-8 h-8 rounded-full border-4 border-emerald-200 border-t-[#10b981] animate-spin flex-shrink-0"></div>
-                <div>
-                  <p className="text-[10px] font-bold text-[#047857] uppercase tracking-widest mb-1">Status</p>
-                  <p className="text-sm font-black text-gray-900">Awaiting Triage</p>
-                </div>
-              </div>
+              <p className="text-gray-500 text-sm font-medium">Connected to Facility #{patientData.hospitalCode}</p>
             </div>
 
             {activeTab === 'education' && (
@@ -285,7 +299,7 @@ export default function MediClearApp() {
                     <div className={`w-32 h-32 bg-[#10b981]/30 rounded-full transition-all duration-[3000ms] ease-in-out ${getBreathScale()}`}></div>
                   </div>
                   
-                  <div className="relative z-10 text-center">
+                  <div className="relative z-10 text-center mt-4">
                     <p className="font-extrabold text-white text-xl tracking-wide">{getBreathText()}</p>
                     <p className="text-[#10b981] text-[10px] font-bold mt-3 uppercase tracking-widest">
                       {isBreathing ? "Tap anywhere to stop" : "Guided Breathing Pacer"}
@@ -324,11 +338,16 @@ export default function MediClearApp() {
 
             {activeTab === 'facility' && (
               <div className="p-6">
-                <div className="mb-6">
-                  <h2 className="text-lg font-extrabold text-gray-900">Facility Operations</h2>
-                  <p className="text-xs text-gray-500 font-medium mt-1">
-                    Live status of diagnostic machines. No patient data is shared.
-                  </p>
+                <div className="mb-6 flex justify-between items-end">
+                  <div>
+                    <h2 className="text-lg font-extrabold text-gray-900">Facility Operations</h2>
+                    <p className="text-xs text-gray-500 font-medium mt-1">
+                      Live status of diagnostic machines.
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded border border-emerald-200">
+                    ID: {patientData.hospitalCode}
+                  </span>
                 </div>
 
                 <div className="flex flex-col gap-4">
@@ -386,9 +405,18 @@ export default function MediClearApp() {
           </div>
 
           <div className="p-8">
-            <p className="text-xs text-gray-500 mb-8 font-medium uppercase tracking-widest leading-relaxed">
-              Updates to these values will instantly reflect in the patient's Facility tab.
-            </p>
+            
+            <div className="mb-8 border-b border-gray-200 pb-6">
+              <label className="block text-xs font-bold text-[#047857] mb-2 uppercase tracking-widest">Controlling Facility Code</label>
+              <input 
+                type="text" maxLength="4" value={adminFacilityCode}
+                onChange={(e) => setAdminFacilityCode(e.target.value)}
+                className="w-full border-b-2 border-gray-300 py-2 bg-transparent focus:outline-none focus:border-[#10b981] transition-colors text-gray-900 font-extrabold text-xl"
+              />
+              <p className="text-[10px] text-gray-500 mt-2 font-medium uppercase tracking-widest">
+                In a production app, this isolates machine data to specific hospital databases via WebSockets.
+              </p>
+            </div>
             
             <div className="flex flex-col gap-6">
               {machines.map(m => (
