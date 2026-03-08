@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE = "http://localhost:4000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 const availableSymptoms = ["Memory Loss", "Confusion", "Chronic Pain", "Severe Illness", "Agitation", "Mood Changes", "Wounds", "Cuts", "Burns", "Skin Irritation", "Fever", "Chills", "Cough", "Respiratory Issues", "General Consultation", "Anxiety", "Stress"];
 const nextStepOptions = ["Nurse Assessment", "Physician Review", "Blood Work", "X-Ray", "CT Scan", "MRI Scan", "Ultrasound", "Medication Review", "Specialist Consult", "Discharge Instructions"];
 

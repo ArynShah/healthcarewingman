@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 // ==========================================
 // VIVIRION MODULE DATA
@@ -104,7 +105,7 @@ export default function PatientPortal() {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/patients/code/${cleanCode}`);
+      const res = await fetch(`${API_BASE}/api/patients/code/${cleanCode}`);
       
       if (res.ok) {
         const dbPatient = await res.json();
