@@ -110,20 +110,25 @@ export default function PatientPortal() {
       if (res.ok) {
         const dbPatient = await res.json();
         
-        // Map the MongoDB data structure to fit your beautiful UI perfectly
         const formattedData = {
           name: dbPatient.name,
           hospitalCode: dbPatient.code,
           symptoms: dbPatient.symptoms,
-          estimatedWait: Math.floor(Math.random() * 30) + 15, // Fake a wait time for the demo
+          estimatedWait: Math.floor(Math.random() * 30) + 15,
           queuePosition: Math.floor(Math.random() * 5) + 1,
-          journey: dbPatient.nextSteps.map((stepName, index) => ({
-            id: String(index + 1),
-            status: index === 0 ? 'current' : 'upcoming', // First step is active
-            title: stepName,
-            what: `Standard procedure for ${stepName.toLowerCase()}.`,
-            why: "Determined necessary by your triage nurse."
-          }))
+          journey: dbPatient.nextSteps.map((stepName, index) => {
+            let stepStatus = 'upcoming';
+            if (index < dbPatient.currentStepIndex) stepStatus = 'completed';
+            if (index === dbPatient.currentStepIndex) stepStatus = 'current';
+
+            return {
+              id: String(index + 1),
+              status: stepStatus, 
+              title: stepName,
+              what: `Standard procedure for ${stepName.toLowerCase()}.`,
+              why: "Determined necessary by your triage nurse."
+            };
+          })
         };
 
         setPatientData(formattedData);
