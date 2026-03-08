@@ -7,6 +7,7 @@ const patientSchema = new mongoose.Schema(
     healthCard: { type: String, default: "" },
     symptoms: { type: [String], default: [] },
     nextSteps: { type: [String], default: [] },
+    currentStepIndex: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

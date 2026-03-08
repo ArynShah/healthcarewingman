@@ -42,17 +42,16 @@ app.get("/api/machines", async (_req, res) => {
   res.json(machines);
 });
 
-app.put("/api/machines/:id", async (req, res) => {
-  const updated = await Machine.findOneAndUpdate(
-    { id: req.params.id },
-    { status: req.body.status },
+app.put("/api/patients/:id", async (req, res) => {
+  const updated = await Patient.findByIdAndUpdate(
+    req.params.id,
+    { $set: { currentStepIndex: req.body.currentStepIndex } },
     { new: true }
   ).lean();
 
   if (!updated) {
-    return res.status(404).json({ message: "Machine not found" });
+    return res.status(404).json({ message: "Patient not found" });
   }
-
   res.json(updated);
 });
 
