@@ -1,11 +1,56 @@
 import React, { useState, useEffect } from 'react';
 
-// FAKE DATABASE: Simulating what the Nurse Dashboard would push to the cloud
+// ==========================================
+// VIVIRION MODULE DATA
+// ==========================================
+const viLearnModules = [
+  {
+    id: "dementia", name: "Dementia Care", length: "4 weeks", level: "Intermediate",
+    description: "Types of dementia and effective communication strategies.",
+    focusAreas: "Memory Care, Alzheimer's", 
+    triggerSymptoms: ["Memory Loss", "Confusion"]
+  },
+  {
+    id: "palliative", name: "Palliative Skills", length: "6 weeks", level: "Advanced",
+    description: "End-of-life care, pain management, and psychosocial support.",
+    focusAreas: "Hospice, Pain Management", 
+    triggerSymptoms: ["Chronic Pain", "Severe Illness"]
+  },
+  {
+    id: "behavioral", name: "Behavioral Mgmt", length: "4 weeks", level: "Intermediate",
+    description: "Strategies to manage challenging behaviors in clients.",
+    focusAreas: "Mental Health, Behavior", 
+    triggerSymptoms: ["Agitation", "Mood Changes"]
+  },
+  {
+    id: "wound", name: "Wound & Skin Care", length: "5 weeks", level: "Advanced",
+    description: "Training on wound assessment and infection control.",
+    focusAreas: "Wound Care, Assessment", 
+    triggerSymptoms: ["Wounds", "Cuts", "Burns", "Skin Irritation"]
+  },
+  {
+    id: "infection", name: "Infection Control", length: "4 weeks", level: "Essential",
+    description: "Best practices for preventing infections in healthcare.",
+    focusAreas: "Safety, Protocols", 
+    triggerSymptoms: ["Fever", "Chills", "Cough", "Respiratory Issues"]
+  },
+  {
+    id: "communication", name: "Therapeutic Comm", length: "3 weeks", level: "Essential",
+    description: "Techniques for building therapeutic relationships.",
+    focusAreas: "Interaction, Empathy", 
+    triggerSymptoms: ["General Consultation", "Anxiety", "Stress"]
+  }
+];
+
+// ==========================================
+// FAKE DATABASE
+// ==========================================
 const mockDatabase = {
   "8241": {
     name: "Alex",
     estimatedWait: 45,
     queuePosition: 3,
+    symptoms: ["Chronic Pain", "Anxiety"], // Symptoms passed from triage nurse
     journey: [
       { 
         id: '1', status: 'completed', title: 'Triage & Vitals', 
@@ -37,7 +82,8 @@ export default function MediClearApp() {
   const [patientCode, setPatientCode] = useState('');
   const [patientData, setPatientData] = useState(null);
   const [activeTab, setActiveTab] = useState('journey'); 
-  const [expandedStep, setExpandedStep] = useState('2'); // Auto-expand the current step
+  const [expandedStep, setExpandedStep] = useState('2'); 
+  const [showEduModal, setShowEduModal] = useState(false);
 
   // WELLNESS LOGIC
   const [isBreathing, setIsBreathing] = useState(false);
@@ -92,8 +138,14 @@ export default function MediClearApp() {
     }
   };
 
-  const toggleStep = (id) => {
-    setExpandedStep(expandedStep === id ? null : id);
+  const toggleStep = (id) => setExpandedStep(expandedStep === id ? null : id);
+
+  const getRecommendedModule = () => {
+    if (!patientData || !patientData.symptoms) return viLearnModules[5];
+    const recommended = viLearnModules.find(module => 
+      module.triggerSymptoms.some(trigger => patientData.symptoms.includes(trigger))
+    );
+    return recommended || viLearnModules[5];
   };
 
   const getBreathText = () => {
@@ -153,11 +205,13 @@ export default function MediClearApp() {
   // VIEW 2: PATIENT DASHBOARD
   // ==========================================
   if (currentView === 'patient') {
+    const recommendedModule = getRecommendedModule();
+
     return (
       <div className="min-h-screen bg-gray-900 flex justify-center sm:p-4 font-sans">
         <div className="w-full max-w-md bg-gray-50 sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col relative h-[100dvh] sm:h-[850px]">
           
-          <nav className="flex items-center justify-between px-6 py-5 bg-[#022c22] text-white shadow-md z-20">
+          <nav className="flex items-center justify-between px-6 py-5 bg-[#022c22] text-white shadow-md z-20 flex-shrink-0">
             <span className="text-xl font-extrabold tracking-tight">MediClear</span>
             <div className="flex items-center gap-4">
               <button 
@@ -169,9 +223,9 @@ export default function MediClearApp() {
             </div>
           </nav>
 
-          <div className="flex-1 overflow-y-auto pb-28">
+          <div className="flex-1 overflow-y-auto pb-32">
             
-            {/* HERO SECTION: Wait Time & Queue */}
+            {/* HERO SECTION */}
             <div className="bg-white px-6 py-8 border-b border-gray-200 shadow-sm relative">
               <h1 className="text-2xl font-extrabold text-gray-900 mb-6">Hi, {patientData.name}.</h1>
               
@@ -187,7 +241,6 @@ export default function MediClearApp() {
                 </div>
               </div>
 
-              {/* REQUIRED DISCLAIMER */}
               <div className="mt-4 bg-yellow-50 border border-yellow-200 p-3 rounded-xl flex gap-3 items-start">
                 <span className="text-yellow-600 font-bold">!</span>
                 <p className="text-[10px] text-yellow-800 font-medium leading-relaxed uppercase tracking-wider">
@@ -196,7 +249,7 @@ export default function MediClearApp() {
               </div>
             </div>
 
-            {/* TAB 1: THE PATIENT JOURNEY FLOW */}
+            {/* TAB 1: JOURNEY */}
             {activeTab === 'journey' && (
               <div className="p-6">
                 <div className="mb-6">
@@ -212,14 +265,12 @@ export default function MediClearApp() {
 
                     return (
                       <div key={step.id} className="relative">
-                        {/* Timeline Node */}
                         <div className={`absolute -left-[25px] w-4 h-4 rounded-full border-4 border-gray-50 flex items-center justify-center ${
                           isCompleted ? 'bg-[#10b981]' : isCurrent ? 'bg-[#047857]' : 'bg-gray-300'
                         }`}>
                           {isCurrent && <div className="absolute w-6 h-6 border-2 border-[#10b981] rounded-full animate-ping opacity-75"></div>}
                         </div>
 
-                        {/* Step Card */}
                         <div 
                           onClick={() => toggleStep(step.id)}
                           className={`cursor-pointer border rounded-2xl transition-all shadow-sm ${
@@ -238,7 +289,6 @@ export default function MediClearApp() {
                             <span className="text-gray-400 font-bold text-lg">{isExpanded ? '-' : '+'}</span>
                           </div>
 
-                          {/* Expanded Explanation */}
                           {isExpanded && (
                             <div className="p-4 pt-0 border-t border-gray-100 bg-gray-50 rounded-b-2xl">
                               <div className="mt-4 mb-4">
@@ -249,8 +299,6 @@ export default function MediClearApp() {
                                 <h4 className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Why it is important</h4>
                                 <p className="text-sm text-[#022c22] font-medium leading-relaxed">{step.why}</p>
                               </div>
-
-                              {/* Machine Status Widget (Only shows if facility data exists) */}
                               {step.facility && (
                                 <div className="bg-white border border-gray-200 p-3 rounded-xl flex items-center justify-between mt-4 shadow-sm">
                                   <div>
@@ -304,15 +352,15 @@ export default function MediClearApp() {
                   <ul className="flex flex-col gap-4 text-sm font-bold text-gray-700">
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">5</span> 
-                      Things you can see
+                      Things You Can See
                     </li>
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">4</span> 
-                      Things you can touch
+                      Things You Can Touch
                     </li>
                     <li className="flex items-center gap-4">
                       <span className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center text-[#047857]">3</span> 
-                      Things you can hear
+                      Things You Can Hear
                     </li>
                   </ul>
                 </div>
@@ -326,9 +374,55 @@ export default function MediClearApp() {
                 </div>
               </div>
             )}
-
           </div>
 
+          {/* FLOATING ACTION BUTTON (VIVIRION) */}
+          <button 
+            onClick={() => setShowEduModal(true)}
+            className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-white text-[#047857] border-2 border-[#10b981] px-6 py-3 rounded-full shadow-[0_10px_25px_rgba(16,185,129,0.3)] font-extrabold text-[11px] uppercase tracking-widest z-30 hover:bg-emerald-50 transition-all flex items-center gap-3 active:scale-95"
+          >
+            <span className="w-2 h-2 bg-[#10b981] rounded-full animate-pulse"></span>
+            Learn More
+          </button>
+
+          {/* VIVIRION MODAL OVERLAY */}
+          {showEduModal && (
+            <div className="absolute inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
+              <div className="bg-white w-full rounded-[2rem] p-8 shadow-2xl relative animate-in fade-in slide-in-from-bottom-10 duration-300">
+                <button 
+                  onClick={() => setShowEduModal(false)} 
+                  className="absolute top-6 right-6 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 font-bold"
+                >
+                  ✕
+                </button>
+                
+                <span className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest bg-emerald-100 px-3 py-1.5 rounded-full border border-emerald-200 mb-6 inline-block">
+                  Powered by Vivirion
+                </span>
+                
+                <div className="flex justify-between items-center mb-4">
+                  <span className="bg-[#10b981] text-white text-[10px] font-black px-3 py-1.5 rounded-full">
+                    {recommendedModule.length}
+                  </span>
+                  <span className="text-xs font-bold text-[#047857]">{recommendedModule.level}</span>
+                </div>
+                
+                <h3 className="text-2xl font-black text-[#022c22] mb-3 leading-tight">{recommendedModule.name}</h3>
+                <p className="text-gray-600 text-sm font-medium leading-relaxed mb-8">{recommendedModule.description}</p>
+                
+                <a 
+                  href="https://vivirion.com/contact" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="block text-center w-full py-4 rounded-xl font-bold text-sm bg-emerald-50 text-[#047857] hover:bg-[#10b981] hover:text-white transition-colors border border-emerald-100 hover:border-transparent"
+                >
+                  Start Interactive Module
+                </a>
+              </div>
+            </div>
+          )}
+
+          {/* BOTTOM NAVIGATION */}
           <div className="absolute bottom-0 w-full bg-white border-t border-gray-200 flex p-3 pb-8 sm:pb-3 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] z-20">
             <button 
               onClick={() => setActiveTab('journey')}
