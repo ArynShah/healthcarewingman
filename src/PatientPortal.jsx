@@ -148,11 +148,18 @@ export default function PatientPortal() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/patients/code/${cleanCode}`);
+      const [patientRes, machinesRes] = await Promise.all([
+        fetch(`${API_BASE}/api/patients/code/${cleanCode}`),
+        fetch(`${API_BASE}/api/machines`)
+      ]);
       
-      if (res.ok) {
-        const dbPatient = await res.json();
+      if (patientRes.ok && machinesRes.ok) {
+        const dbPatient = await patientRes.json();
+        const dbMachines = await machinesRes.json();
         
+        // Ensure index is at least 1 so Triage is always completed
+        const currentIndex = Math.max(1, dbPatient.currentStepIndex || 1);
+
         const formattedData = {
           name: dbPatient.name,
           hospitalCode: dbPatient.code,
@@ -161,26 +168,34 @@ export default function PatientPortal() {
           queuePosition: Math.floor(Math.random() * 5) + 1,
           journey: dbPatient.nextSteps.map((stepName, index) => {
             let stepStatus = 'upcoming';
-            if (index < dbPatient.currentStepIndex) stepStatus = 'completed';
-            if (index === dbPatient.currentStepIndex) stepStatus = 'current';
+            if (index < currentIndex) stepStatus = 'completed';
+            if (index === currentIndex) stepStatus = 'current';
 
             const descriptions = stepDescriptions[stepName] || {
               what: `Standard procedure for ${stepName.toLowerCase()}.`,
               why: "Determined necessary by your care team."
             };
 
+            // Map step to database machine if applicable
+            let mappedMachine = null;
+            if (stepName === "X-Ray") mappedMachine = dbMachines.find(m => m.id === "xray_1");
+            if (stepName === "MRI Scan") mappedMachine = dbMachines.find(m => m.id === "mri_1");
+            if (stepName === "CT Scan") mappedMachine = dbMachines.find(m => m.id === "ct_1");
+            if (stepName === "Blood Work") mappedMachine = dbMachines.find(m => m.id === "blood_1");
+
             return {
               id: String(index + 1),
               status: stepStatus, 
               title: stepName,
               what: descriptions.what,
-              why: descriptions.why
+              why: descriptions.why,
+              machine: mappedMachine
             };
           })
         };
 
         setPatientData(formattedData);
-        setExpandedStep(String(dbPatient.currentStepIndex + 1));
+        setExpandedStep(String(currentIndex + 1));
         setCurrentView('patient');
       } else {
         alert("Patient code not found! Make sure the nurse created it first.");
@@ -350,6 +365,23 @@ export default function PatientPortal() {
                                 <h4 className="text-[10px] font-extrabold text-[#047857] uppercase tracking-widest mb-1">Why it is important</h4>
                                 <p className="text-sm text-[#022c22] font-medium leading-relaxed">{step.why}</p>
                               </div>
+
+                              {step.machine && (
+                                <div className="bg-white border border-gray-200 p-3 rounded-xl flex items-center justify-between mt-4 shadow-sm">
+                                  <div>
+                                    <p className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Facility Routing</p>
+                                    <p className="text-xs font-bold text-gray-800">{step.machine.name}</p>
+                                  </div>
+                                  <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase tracking-widest ${
+                                    step.machine.status === 'In Use' ? 'bg-emerald-50 text-[#047857] border border-emerald-100' : 
+                                    step.machine.status === 'Available' ? 'bg-green-100 text-green-700 border border-green-200' : 
+                                    'bg-gray-100 text-gray-600'
+                                  }`}>
+                                    {step.machine.status}
+                                  </span>
+                                </div>
+                              )}
+
                             </div>
                           )}
                         </div>
