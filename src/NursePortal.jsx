@@ -10,7 +10,7 @@ const nextStepOptions = [
 ];
 
 export default function NursePortal() {
-  const ADMIN_PASSWORD = "mediclear123";
+  const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || "Aryan123";
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState("");
   const [activeTab, setActiveTab] = useState("create");
@@ -143,7 +143,7 @@ export default function NursePortal() {
             <h1 className="text-3xl font-extrabold text-white tracking-tight">MediClear Command</h1>
           </div>
           <form onSubmit={(e) => { e.preventDefault(); if(adminPasswordInput === ADMIN_PASSWORD) setIsAdminAuthenticated(true); else alert("Incorrect"); }} className="p-8 flex flex-col gap-6">
-            <input type="password" value={adminPasswordInput} onChange={(e) => setAdminPasswordInput(e.target.value)} className="w-full border-b-2 border-gray-300 py-2 outline-none focus:border-[#10b981] font-bold" placeholder="Password (mediclear123)" />
+            <input type="password" value={adminPasswordInput} onChange={(e) => setAdminPasswordInput(e.target.value)} className="w-full border-b-2 border-gray-300 py-2 outline-none focus:border-[#10b981] font-bold" placeholder="Password" />
             <button type="submit" className="w-full py-4 bg-[#022c22] text-white font-extrabold rounded-xl hover:bg-[#047857]">Access System</button>
           </form>
         </div>

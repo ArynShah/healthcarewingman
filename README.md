@@ -18,18 +18,22 @@ This project was built to help reduce the clinical anxiety patients experience w
 - Facility routing control to manually update the availability of hospital machines.
 
 ## Tech Stack
-- Frontend: React, Vite, Tailwind CSS, React Router (Deployed on Vercel)
-- Backend: Node.js, Express (Deployed on Render)
+- Frontend: React, Vite, Tailwind CSS, React Router
+- Backend: Node.js, Express
 - Database: MongoDB Atlas
 
-## How to Use the Live Application
+## How to Run Locally
 
-MediClear operates across two synchronized web views. To test the full flow, you will need to use both the Nurse Command Center and the Patient Portal. 
+MediClear operates across two synchronized web views driven by a local backend. To test the full flow, you will need to run the application locally using npm.
 
-1. Navigate to the deployed Nurse Command Center by using this project URL (https://mediclearhc.vercel.app/nurse).
-2. Log in using the default admin password: `mediclear123`.
-3. Go to the "Add Patient" tab. Enter a test name, select a few symptoms, and click a few routing steps (such as Blood Work and an X-Ray). 
-4. Click the generate button at the bottom of the screen to receive a 6-character patient access code.
-5. Open a new browser tab or use your phone and go to the main Patient Portal at the root Vercel URL (https://mediclearhc.vercel.app/).
-6. Enter the 6-character code you just generated.
-7. You will now see the live patient dashboard. To see the real-time synchronization, go back to the Nurse Command Center's "Active Directory" tab, advance the patient's stage, or change machine statuses in the "Facility Routing" tab, and watch the changes reflect immediately on the Patient Portal.
+### Prerequisites
+1. Ensure you have [Node.js](https://nodejs.org/) installed.
+2. Create a `.env` file in the root directory and add your MongoDB connection string:
+   `MONGODB_URI=your_mongodb_connection_string_here`
+3. (Optional) Add `VITE_ADMIN_PASSWORD=your_custom_password` to your `.env` file to override the default local nurse portal password.
+
+### Starting the Servers
+1. **Start the Backend API:** Open a terminal, navigate to the project directory, install dependencies, and start the server:
+   ```bash
+   npm install
+   node server/index.js
